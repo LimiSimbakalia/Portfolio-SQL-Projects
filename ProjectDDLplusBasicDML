@@ -1,27 +1,27 @@
-CREATE SCHEMA lsgupta;
-CREATE TABLE lsgupta.customers (
+CREATE SCHEMA ls;
+CREATE TABLE ls.customers (
   customer_id smallint PRIMARY KEY,
   customer_name varchar NOT NULL
 );
-CREATE TABLE lsgupta.users (
+CREATE TABLE ls.users (
   user_id smallint PRIMARY KEY,
   name varchar NOT NULL,
   department varchar NOT NULL,
   email varchar NOT NULL,
   customer_id smallint NOT NULL
 );
-CREATE TABLE lsgupta.floodlightlog (
+CREATE TABLE ls.floodlightlog (
   floodlightlog_id char(12) PRIMARY KEY,
   user_id smallint NOT NULL,
   event_id smallint NOT NULL,
   event_time timestamp NOT NULL
 );
-CREATE TABLE lsgupta.floodlightglossary (
+CREATE TABLE ls.floodlightglossary (
   event_id smallint PRIMARY KEY,
   description varchar NOT NULL,
   event_type varchar NOT NULL
 );
-INSERT INTO lsgupta.customers (customer_id, customer_name)
+INSERT INTO ls.customers (customer_id, customer_name)
 VALUES (
   350, 
   'DataBlink'
@@ -41,7 +41,7 @@ VALUES (
   402, 
   'AirPix'
 );
-INSERT INTO lsgupta.users (
+INSERT INTO ls.users (
   user_id,
   name,
   department,
@@ -169,7 +169,7 @@ VALUES (
   'yuki.tanaka@nanospecs.com', 
   343
 );
-INSERT INTO lsgupta.floodlightlog (floodlightlog_id, user_id, event_id, event_time)
+INSERT INTO ls.floodlightlog (floodlightlog_id, user_id, event_id, event_time)
 VALUES (
   'G-KK2B13HR32', 
   3067, 
@@ -321,7 +321,7 @@ VALUES (
   1, 
   TIMESTAMP '2024-02-14 12:50:00.0'
 );
-INSERT INTO lsgupta.floodlightglossary (event_id, description, event_type)
+INSERT INTO ls.floodlightglossary (event_id, description, event_type)
 VALUES (
   1, 
   'page_view', 
@@ -364,22 +364,22 @@ VALUES (
   'custom'
 );
 SELECT *
-FROM lsgupta.customers
-  JOIN lsgupta.users
+FROM ls.customers
+  JOIN ls.users
     ON users.customer_id = customers.customer_id;
 SELECT *
-FROM lsgupta.users
-  JOIN lsgupta.floodlightlog
+FROM ls.users
+  JOIN ls.floodlightlog
     ON floodlightlog.user_id = users.user_id;
 SELECT *
-FROM lsgupta.floodlightlog
-  JOIN lsgupta.floodlightglossary
+FROM ls.floodlightlog
+  JOIN ls.floodlightglossary
     ON floodlightlog.event_id = floodlightglossary.event_id;
 SELECT *
-FROM lsgupta.customers;
+FROM ls.customers;
 SELECT *
-FROM lsgupta.users;
+FROM ls.users;
 SELECT *
-FROM lsgupta.floodlightlog;
+FROM ls.floodlightlog;
 SELECT *
-FROM lsgupta.floodlightglossary;
+FROM ls.floodlightglossary;
