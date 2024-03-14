@@ -1,0 +1,385 @@
+CREATE SCHEMA lsgupta;
+CREATE TABLE lsgupta.customers (
+  customer_id smallint PRIMARY KEY,
+  customer_name varchar NOT NULL
+);
+CREATE TABLE lsgupta.users (
+  user_id smallint PRIMARY KEY,
+  name varchar NOT NULL,
+  department varchar NOT NULL,
+  email varchar NOT NULL,
+  customer_id smallint NOT NULL
+);
+CREATE TABLE lsgupta.floodlightlog (
+  floodlightlog_id char(12) PRIMARY KEY,
+  user_id smallint NOT NULL,
+  event_id smallint NOT NULL,
+  event_time timestamp NOT NULL
+);
+CREATE TABLE lsgupta.floodlightglossary (
+  event_id smallint PRIMARY KEY,
+  description varchar NOT NULL,
+  event_type varchar NOT NULL
+);
+INSERT INTO lsgupta.customers (customer_id, customer_name)
+VALUES (
+  350, 
+  'DataBlink'
+), (
+  343, 
+  'NanoSpecs'
+), (
+  340, 
+  'Ringer Corp'
+), (
+  403, 
+  'Re.Port'
+), (
+  380, 
+  'High Ring Inc.'
+), (
+  402, 
+  'AirPix'
+);
+INSERT INTO lsgupta.users (
+  user_id,
+  name,
+  department,
+  email,
+  customer_id
+)
+VALUES (
+  3852, 
+  'Maria Gonzalez', 
+  'User Experience', 
+  'maria.gonzalez@nanospecs.com', 
+  343
+), (
+  3945, 
+  'Ahmed Khan', 
+  'Product', 
+  'ahmed.khan@airpix.com', 
+  402
+), (
+  3723, 
+  'Mei Chen', 
+  'Data Engineering', 
+  'mei.chen@datablink.com', 
+  350
+), (
+  3691, 
+  'Alejandro Ramirez', 
+  'User Experience', 
+  'alejandro.ramirez@datablink.com', 
+  350
+), (
+  3844, 
+  'Aisha Patel', 
+  'User Experience', 
+  'aisha.patel@highringinc.com', 
+  380
+), (
+  3997, 
+  'Jamal Washington', 
+  'Product', 
+  'jamal.washington@airpix.com', 
+  402
+), (
+  3495, 
+  'Sophia Nguyen', 
+  'Product', 
+  'sophia.nguyen@datablink.com', 
+  350
+), (
+  3213, 
+  'Ali Al-Mansoori', 
+  'Product', 
+  'ali.al-mansoori@re.port.com', 
+  403
+), (
+  3916, 
+  'Leila Kim', 
+  'User Experience', 
+  'leila.kim@nanospecs.com', 
+  343
+), (
+  3645, 
+  'Diego Santos', 
+  'Data Engineering', 
+  'diego.santos@nanospecs.com', 
+  343
+), (
+  3175, 
+  'Priya Gupta', 
+  'Data Engineering', 
+  'priya.gupta@nanospecs.com', 
+  343
+), (
+  3332, 
+  'Marcus Johnson', 
+  'User Experience', 
+  'marcus.johnson@highringinc.com', 
+  380
+), (
+  3006, 
+  'Yuki Tanaka', 
+  'Product', 
+  'yuki.tanaka@nanospecs.com', 
+  343
+), (
+  3991, 
+  'Fatima Khan', 
+  'User Experience', 
+  'fatima.khan@datablink.com', 
+  350
+), (
+  3067, 
+  'Nikolai Petrov', 
+  'User Experience', 
+  'nikolai.petrov@nanospecs.com', 
+  343
+), (
+  3681, 
+  'Elena Vasiliev', 
+  'Product', 
+  'elena.vasiliev@ringercorp.com', 
+  340
+), (
+  3097, 
+  'Juan Martinez', 
+  'Product', 
+  'juan.martinez@airpix.com', 
+  402
+), (
+  3927, 
+  'Amir Khan', 
+  'User Experience', 
+  'amir.khan@ringercorp.com', 
+  340
+), (
+  3023, 
+  'Gabriela Silva', 
+  'Product', 
+  'gabriela.silva@re.port.com', 
+  403
+), (
+  3286, 
+  'Hiroshi Yamamoto', 
+  'Data Engineering', 
+  'yuki.tanaka@nanospecs.com', 
+  343
+);
+INSERT INTO lsgupta.floodlightlog (floodlightlog_id, user_id, event_id, event_time)
+VALUES (
+  'G-KK2B13HR32', 
+  3067, 
+  1, 
+  TIMESTAMP '2024-02-01 09:15:00.0'
+), (
+  'G-5678CZR111', 
+  3927, 
+  4, 
+  TIMESTAMP '2024-02-02 10:30:00.0'
+), (
+  'G-3CH34G4123', 
+  3286, 
+  2, 
+  TIMESTAMP '2024-02-03 11:45:00.0'
+), (
+  'G-234567CX34', 
+  3286, 
+  5, 
+  TIMESTAMP '2024-02-06 12:20:00.0'
+), (
+  'G-3353214112', 
+  3844, 
+  4, 
+  TIMESTAMP '2024-02-07 13:40:00.0'
+), (
+  'G-OM2N22AB33', 
+  3681, 
+  2, 
+  TIMESTAMP '2024-02-08 14:05:00.0'
+), (
+  'G-4567KCJ111', 
+  3852, 
+  1, 
+  TIMESTAMP '2024-02-09 15:25:00.0'
+), (
+  'G-2KK25L1123', 
+  3945, 
+  8, 
+  TIMESTAMP '2024-02-12 09:10:00.0'
+), (
+  'G-234567RJ56', 
+  3175, 
+  4, 
+  TIMESTAMP '2024-02-13 10:35:00.0'
+), (
+  'G-2141535153', 
+  3927, 
+  8, 
+  TIMESTAMP '2024-02-14 11:55:00.0'
+), (
+  'G-HY2N15DA55', 
+  3097, 
+  9, 
+  TIMESTAMP '2024-02-15 12:30:00.0'
+), (
+  'G-3456NEE111', 
+  3097, 
+  5, 
+  TIMESTAMP '2024-02-16 13:55:00.0'
+), (
+  'G-1HO34P1123', 
+  3927, 
+  3, 
+  TIMESTAMP '2024-02-19 14:25:00.0'
+), (
+  'G-345678VR23', 
+  3844, 
+  9, 
+  TIMESTAMP '2024-02-20 09:20:00.0'
+), (
+  'G-5545112221', 
+  3097, 
+  3, 
+  TIMESTAMP '2024-02-21 10:45:00.0'
+), (
+  'G-XT1B24GI41', 
+  3681, 
+  8, 
+  TIMESTAMP '2024-02-22 11:10:00.0'
+), (
+  'G-2345ZXE111', 
+  3691, 
+  9, 
+  TIMESTAMP '2024-02-23 12:35:00.0'
+), (
+  'G-5NR12G5234', 
+  3844, 
+  6, 
+  TIMESTAMP '2024-02-26 13:50:00.0'
+), (
+  'G-345678IR56', 
+  3645, 
+  3, 
+  TIMESTAMP '2024-02-27 14:15:00.0'
+), (
+  'G-2314543434', 
+  3681, 
+  10, 
+  TIMESTAMP '2024-02-28 09:30:00.0'
+), (
+  'G-TJ3H42BQ21', 
+  3645, 
+  5, 
+  TIMESTAMP '2024-02-01 10:25:00.0'
+), (
+  'G-5678EMY111', 
+  3645, 
+  6, 
+  TIMESTAMP '2024-02-02 11:40:00.0'
+), (
+  'G-2IJ54J5123', 
+  3723, 
+  6, 
+  TIMESTAMP '2024-02-03 12:55:00.0'
+), (
+  'G-456789UW12', 
+  3175, 
+  10, 
+  TIMESTAMP '2024-02-06 13:15:00.0'
+), (
+  'G-2421311522', 
+  3067, 
+  7, 
+  TIMESTAMP '2024-02-07 14:45:00.0'
+), (
+  'G-HG4R24QH31', 
+  3916, 
+  2, 
+  TIMESTAMP '2024-02-08 15:00:00.0'
+), (
+  'G-3456MJO111', 
+  3927, 
+  2, 
+  TIMESTAMP '2024-02-09 09:40:00.0'
+), (
+  'G-2BN41V5123', 
+  3852, 
+  7, 
+  TIMESTAMP '2024-02-12 10:15:00.0'
+), (
+  'G-234567IP23', 
+  3723, 
+  5, 
+  TIMESTAMP '2024-02-13 11:30:00.0'
+), (
+  'G-5251514255', 
+  3945, 
+  1, 
+  TIMESTAMP '2024-02-14 12:50:00.0'
+);
+INSERT INTO lsgupta.floodlightglossary (event_id, description, event_type)
+VALUES (
+  1, 
+  'page_view', 
+  'automatically collected'
+), (
+  2, 
+  'scroll', 
+  'automatically collected'
+), (
+  3, 
+  'form_start', 
+  'automatically collected'
+), (
+  4, 
+  'form_submit', 
+  'automatically collected'
+), (
+  5, 
+  'page_refresh', 
+  'automatically collected'
+), (
+  6, 
+  'mod1_session', 
+  'custom'
+), (
+  7, 
+  'mod2_session', 
+  'custom'
+), (
+  8, 
+  'mod3_session', 
+  'custom'
+), (
+  9, 
+  'mod4_session', 
+  'custom'
+), (
+  10, 
+  'mod5_session', 
+  'custom'
+);
+SELECT *
+FROM lsgupta.customers
+  JOIN lsgupta.users
+    ON users.customer_id = customers.customer_id;
+SELECT *
+FROM lsgupta.users
+  JOIN lsgupta.floodlightlog
+    ON floodlightlog.user_id = users.user_id;
+SELECT *
+FROM lsgupta.floodlightlog
+  JOIN lsgupta.floodlightglossary
+    ON floodlightlog.event_id = floodlightglossary.event_id;
+SELECT *
+FROM lsgupta.customers;
+SELECT *
+FROM lsgupta.users;
+SELECT *
+FROM lsgupta.floodlightlog;
+SELECT *
+FROM lsgupta.floodlightglossary;
