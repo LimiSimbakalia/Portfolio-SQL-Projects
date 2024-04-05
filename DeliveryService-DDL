@@ -1,0 +1,679 @@
+DROP SCHEMA IF EXISTS lrs0306 CASCADE;
+
+CREATE SCHEMA lrs0306
+    AUTHORIZATION lsimbakalia;
+
+DROP TABLE IF EXISTS lrs0306.catalog;
+DROP TABLE IF EXISTS lrs0306.ingredients;
+DROP TABLE IF EXISTS lrs0306.orders;
+DROP TABLE IF EXISTS lrs0306.order_items;
+DROP TABLE IF EXISTS lrs0306.customers;
+DROP TABLE IF EXISTS lrs0306.delivery;
+
+
+CREATE TABLE lrs0306.catalog (
+	dish_id int NOT NULL UNIQUE,
+	dish_name varchar(30) NOT NULL UNIQUE,
+	menu_price numeric(4,2) NOT NULL,
+	allergens varchar(25) DEFAULT 'N/A',
+	veg_alt boolean NOT NULL,
+	glut_alt boolean NOT NULL,
+	category varchar(20) NOT NULL,
+	restaurant varchar(20) NOT NULL
+
+);
+
+CREATE TABLE lrs0306.ingredients (
+    dish_id int NOT NULL,
+    ingredient varchar(120) NOT NULL
+);
+
+CREATE TABLE lrs0306.orders (
+    order_id int NOT NULL UNIQUE,
+    order_date timestamptz NOT NULL,
+    customer_id int NOT NULL,
+    restaurant varchar(20) NOT NULL,
+    worker_id int NOT NULL
+);
+
+CREATE TABLE lrs0306.order_items (
+	order_id int NOT NULL,
+	dish_id int NOT NULL,
+	quantity int NOT NULL
+	
+);
+
+CREATE TABLE lrs0306.customers (
+    customer_id int UNIQUE,
+    last_name varchar(25) NOT NULL,
+    first_name varchar(25) NOT NULL,
+    address varchar(25) NOT NULL,
+    zip char(5) NOT NULL,
+    email varchar(35) NOT NULL UNIQUE,
+    phone char(10) NOT NULL UNIQUE
+);
+
+CREATE TABLE lrs0306.delivery (
+    worker_id int NOT NULL UNIQUE,
+    last_name varchar(25) NOT NULL,
+    first_name varchar(25) NOT NULL,
+    email varchar(35) NOT NULL UNIQUE,
+    phone char(10) NOT NULL UNIQUE
+);
+
+
+
+-- Capitalizing first letter of first and last name
+UPDATE lrs0306.customers SET first_name = CONCAT(UPPER(SUBSTRING(first_name,1,1)), LOWER(SUBSTRING(first_name,2))) ;
+UPDATE lrs0306.customers SET last_name = CONCAT(UPPER(SUBSTRING(last_name,1,1)), LOWER(SUBSTRING(last_name,2))) ;
+UPDATE lrs0306.delivery SET first_name = CONCAT(UPPER(SUBSTRING(first_name,1,1)), LOWER(SUBSTRING(first_name,2))) ;
+UPDATE lrs0306.delivery SET last_name = CONCAT(UPPER(SUBSTRING(last_name,1,1)), LOWER(SUBSTRING(last_name,2))) ;
+
+
+-- Making 'FALSE' or null value the default for allergen-related fields
+
+ALTER TABLE lrs0306.catalog ALTER COLUMN allergens SET DEFAULT NULL; 
+ALTER TABLE lrs0306.catalog ALTER COLUMN veg_alt SET DEFAULT FALSE; 
+ALTER TABLE lrs0306.catalog ALTER COLUMN glut_alt SET DEFAULT FALSE; 
+
+
+-- Record insertion
+
+INSERT INTO lrs0306.catalog (dish_id, dish_name, menu_price, allergens, veg_alt, glut_alt, category, restaurant) (
+VALUES
+
+	(3801, 'Spaghetti Carbonara', 11.99, NULL, FALSE, TRUE, 'Pasta', 'Amalfi Apetito'),
+	(3068, 'Margherita Pizza', 10.99, 'Dairy', TRUE, TRUE, 'Pizza', 'Amalfi Apetito'),
+	(3868, 'Risotto ai Funghi', 14.99, 'Dairy', TRUE, TRUE, 'Risotto', 'Amalfi Apetito'),
+	(3551, 'Caprese Salad', 12.99, 'Dairy', TRUE, TRUE, 'Salad', 'Amalfi Apetito'),
+	(3962, 'Lasagna', 16.99, 'Dairy, Gluten', TRUE, FALSE, 'Pasta', 'Amalfi Apetito'),
+	(3087, 'Eggplant Parmesan Calzone', 14.99, 'Dairy, Gluten', TRUE, TRUE, 'Calzone', 'Amalfi Apetito'),
+	(3134, 'Tiramisu', 13.99, 'Dairy', FALSE, TRUE, 'Dessert', 'Amalfi Apetito'),
+	(3434, 'Margherita Panini', 11.99, 'Dairy, Gluten', TRUE, TRUE, 'Flatbread', 'Amalfi Apetito'),
+	(3197, 'Gnocchi', 10.99, 'Dairy, Gluten', TRUE, TRUE, 'Pasta', 'Amalfi Apetito'),
+	(3797, 'Fettuccine Alfredo', 11.99, 'Dairy', FALSE, TRUE, 'Pasta', 'Amalfi Apetito'),
+	(3616, 'Minestrone Soup', 14.99, 'Gluten', TRUE, FALSE, 'Soup', 'Amalfi Apetito'),
+	(3410, 'Margherita Calzone', 10.99, 'Dairy, Gluten', TRUE, TRUE, 'Calzone', 'Amalfi Apetito'),
+	(3548, 'Bruschetta', 12.99, 'Gluten', TRUE, TRUE, 'Appetizer', 'Amalfi Apetito'),
+	(3164, 'Penne Arrabbiata', 10.99, 'Gluten', TRUE, TRUE, 'Pasta', 'Amalfi Apetito'),
+	(3325, 'Caesar Salad', 11.99, 'Dairy, Gluten', TRUE, FALSE, 'Salad', 'Amalfi Apetito'),
+	(3735, 'Cannoli', 12.99, 'Dairy, Gluten', TRUE, FALSE, 'Dessert', 'Amalfi Apetito'),
+	(3473, 'Mushroom Risotto', 14.99, 'Dairy', TRUE, TRUE, 'Risotto', 'Amalfi Apetito'),
+	(3353, 'Margherita Flatbread', 12.99, 'Dairy, Gluten', TRUE, TRUE, 'Flatbread', 'Amalfi Apetito'),
+	(3572, 'Spaghetti Aglio e Olio', 11.99, 'Gluten', TRUE, TRUE, 'Pasta', 'Amalfi Apetito'),
+	(3420, 'Margherita Focaccia', 10.99, 'Dairy, Gluten', TRUE, TRUE, 'Flatbread', 'Amalfi Apetito'),
+	(3605, 'Momos', 14.99, 'Gluten', TRUE, FALSE, 'Appetizer', 'Pokhara Plates'),
+	(3317, 'Dal Bhat', 14.99, NULL, TRUE, FALSE, 'Main Course', 'Pokhara Plates'),
+	(3726, 'Gundruk', 6.99, NULL, TRUE, FALSE, 'Side Dish', 'Pokhara Plates'),
+	(3408, 'Sel Roti', 6.99, NULL, TRUE, FALSE, 'Dessert', 'Pokhara Plates'),
+	(3980, 'Chicken Choila', 7.99, NULL, TRUE, FALSE, 'Appetizer', 'Pokhara Plates'),
+	(3214, 'Thukpa', 11.99, 'Gluten', TRUE, FALSE, 'Soup', 'Pokhara Plates'),
+	(3829, 'Yomari', 8.99, NULL, TRUE, FALSE, 'Dessert', 'Pokhara Plates'),
+	(3853, 'Sekuwa', 7.99, NULL, TRUE, FALSE, 'Main Course', 'Pokhara Plates'),
+	(3430, 'Kwati', 4.99, NULL, TRUE, FALSE, 'Soup', 'Pokhara Plates'),
+	(3633, 'Samosa', 6.99, 'Gluten', TRUE, FALSE, 'Appetizer', 'Pokhara Plates'),
+	(3450, 'Kheer', 6.99, 'Dairy', FALSE, FALSE, 'Dessert', 'Pokhara Plates'),
+	(3913, 'Sukuti', 7.99, NULL, TRUE, FALSE, 'Appetizer', 'Pokhara Plates'),
+	(3185, 'Chatamari', 12.99, 'Gluten', TRUE, FALSE, 'Main Course', 'Pokhara Plates'),
+	(3618, 'Alu Tama', 5.99, NULL, TRUE, FALSE, 'Main Course', 'Pokhara Plates'),
+	(3748, 'Gundruk Ko Jhol', 7.99, NULL, TRUE, FALSE, 'Soup', 'Pokhara Plates'),
+	(3925, 'Laphing', 6.99, NULL, TRUE, FALSE, 'Appetizer', 'Pokhara Plates'),
+	(3985, 'Bara', 5.99, NULL, TRUE, FALSE, 'Appetizer', 'Pokhara Plates'),
+	(3675, 'Chhoyla', 7.99, NULL, TRUE, FALSE, 'Appetizer', 'Pokhara Plates'),
+	(3362, 'Aloo Chop', 5.99, 'Gluten', TRUE, FALSE, 'Appetizer', 'Pokhara Plates'),
+	(3954, 'Kakro Ko Achar', 5.99, NULL, TRUE, FALSE, 'Side Dish', 'Pokhara Plates'),
+	(3684, 'Pad Thai', 14.99, 'Gluten, Nuts', TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3905, 'Green Curry', 14.99, NULL, TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3734, 'Tom Yum Soup', 16.99, NULL, TRUE, FALSE, 'Soup', 'Savory Siam'),
+	(3019, 'Som Tum', 10.99, 'Fish, Nuts', TRUE, FALSE, 'Salad', 'Savory Siam'),
+	(3998, 'Massaman Curry', 13.99, 'Nuts', TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3711, 'Pad See Ew', 12.99, 'Gluten', TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3919, 'Red Curry', 15.99, NULL, TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3581, 'Mango Sticky Rice', 7.99, NULL, TRUE, FALSE, 'Dessert', 'Savory Siam'),
+	(3963, 'Chicken Satay', 7.99, 'Nuts', FALSE, FALSE, 'Appetizer', 'Savory Siam'),
+	(3386, 'Thai Fried Rice', 11.99, 'Gluten', TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3097, 'Thai Fish Cakes', 12.99, 'Fish', TRUE, FALSE, 'Appetizer', 'Savory Siam'),
+	(3080, 'Pad Kra Pao', 12.99, 'Gluten', TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3522, 'Tom Kha Soup', 16.99, NULL, TRUE, FALSE, 'Soup', 'Savory Siam'),
+	(3300, 'Spring Rolls', 11.99, 'Gluten, Shellfish', TRUE, FALSE, 'Appetizer', 'Savory Siam'),
+	(3162, 'Pineapple Fried Rice', 12.99, 'Nuts', TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3870, 'Pad Prik King', 13.99, NULL, TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3785, 'Crying Tiger', 7.99, NULL, TRUE, FALSE, 'Main Course', 'Savory Siam'),
+	(3345, 'Papaya Salad', 10.99, 'Fish, Nuts', TRUE, FALSE, 'Salad', 'Savory Siam'),
+	(3215, 'Thai Iced Tea', 6.99, 'Dairy', FALSE, FALSE, 'Beverage', 'Savory Siam'),
+	(3849, 'Banana Roti', 5.99, 'Dairy', FALSE, FALSE, 'Dessert', 'Savory Siam'),
+	(3231, 'Ropa Vieja', 12.99, NULL, TRUE, FALSE, 'Main Course', 'Carribean Cabana'),
+	(3171, 'Arroz con Pollo', 10.99, NULL, TRUE, FALSE, 'Main Course', 'Carribean Cabana'),
+	(3503, 'Picadillo', 11.99, NULL, TRUE, FALSE, 'Main Course', 'Carribean Cabana'),
+	(3850, 'Cuban Sandwich', 12.99, 'Dairy', FALSE, FALSE, 'Sandwich', 'Carribean Cabana'),
+	(3284, 'Lechon Asado', 6.99, NULL, TRUE, FALSE, 'Main Course', 'Carribean Cabana'),
+	(3840, 'Tostones', 5.99, NULL, TRUE, FALSE, 'Appetizer', 'Carribean Cabana'),
+	(3494, 'Vaca Frita', 7.99, NULL, TRUE, FALSE, 'Main Course', 'Carribean Cabana'),
+	(3049, 'Moros y Cristianos', 9.99, NULL, TRUE, FALSE, 'Side Dish', 'Carribean Cabana'),
+	(3749, 'Yuca con Mojo', 5.99, NULL, TRUE, FALSE, 'Side Dish', 'Carribean Cabana'),
+	(3495, 'Empanadas', 8.99, 'Gluten, Dairy', FALSE, FALSE, 'Appetizer', 'Carribean Cabana'),
+	(3379, 'Cuban Black Bean Soup', 9.99, NULL, TRUE, FALSE, 'Soup', 'Carribean Cabana'),
+	(3972, 'Cuban Style Pork Chops', 4.99, NULL, TRUE, FALSE, 'Main Course', 'Carribean Cabana'),
+	(3432, 'Tamales', 12.99, NULL, TRUE, FALSE, 'Appetizer', 'Carribean Cabana'),
+	(3067, 'Maduros', 4.99, NULL, TRUE, FALSE, 'Side Dish', 'Carribean Cabana'),
+	(3839, 'Yuca Fries', 2.99, NULL, TRUE, FALSE, 'Side Dish', 'Carribean Cabana'),
+	(3254, 'Cuban Flan', 5.99, 'Dairy', FALSE, FALSE, 'Dessert', 'Carribean Cabana'),
+	(3721, 'Cuban Picadillo Empanadas', 10.99, 'Gluten', FALSE, FALSE, 'Appetizer', 'Carribean Cabana'),
+	(3282, 'Cuban Mojo Chicken', 5.99, NULL, TRUE, FALSE, 'Main Course', 'Carribean Cabana'),
+	(3315, 'Cuban Black Bean Salad', 10.99, NULL, TRUE, FALSE, 'Salad', 'Carribean Cabana'),
+	(3973, 'Cuban Espresso', 1.99, NULL, FALSE, FALSE, 'Beverage', 'Carribean Cabana')
+
+);
+
+INSERT INTO lrs0306.ingredients (dish_id, ingredient) (
+VALUES
+
+        (3801, 'Spaghetti'),
+	(3801, 'Eggs'),
+	(3801, 'Pancetta'),
+	(3801, 'Parmesan Cheese'),
+	(3801, 'Black Pepper'),
+	(3068, 'Pizza Dough'),
+	(3068, 'Tomato Sauce'),
+	(3068, 'Mozzarella Cheese'),
+	(3068, 'Basil'),
+	(3868, 'Arborio Rice'),
+	(3868, 'Mushrooms'),
+	(3868, 'Onion'),
+	(3868, 'Garlic'),
+	(3868, 'Vegetable Broth'),
+	(3868, 'Parmesan Cheese'),
+	(3551, 'Tomato'),
+	(3551, 'Mozzarella Cheese'),
+	(3551, 'Basil'),
+	(3551, 'Olive Oil'),
+	(3551, 'Balsamic Vinegar'),
+	(3962, 'Lasagna Sheets'),
+	(3962, 'Bolognese Sauce'),
+	(3962, 'Ricotta Cheese'),
+	(3962, 'Mozzarella Cheese'),
+	(3962, 'Parmesan Cheese'),
+	(3087, 'Pizza Dough'),
+	(3087, 'Eggplant'),
+	(3087, 'Marinara Sauce'),
+	(3087, 'Mozzarella Cheese'),
+	(3087, 'Parmesan Cheese'),
+	(3087, 'Bread Crumbs'),
+	(3134, 'Ladyfingers'),
+	(3134, 'Espresso'),
+	(3134, 'Mascarpone Cheese'),
+	(3134, 'Cocoa Powder'),
+	(3134, 'Rum'),
+	(3134, 'Sugar'),
+	(3434, 'Ciabatta Bread'),
+	(3434, 'Tomato'),
+	(3434, 'Mozzarella Cheese'),
+	(3434, 'Basil'),
+	(3434, 'Olive Oil'),
+	(3197, 'Potato'),
+	(3197, 'Flour'),
+	(3197, 'Tomato Sauce'),
+	(3197, 'Basil'),
+	(3197, 'Parmesan Cheese'),
+	(3797, 'Fettuccine Pasta'),
+	(3797, 'Cream'),
+	(3797, 'Butter'),
+	(3797, 'Parmesan Cheese'),
+	(3797, 'Garlic'),
+	(3616, 'Vegetable Broth'),
+	(3616, 'Tomato'),
+	(3616, 'Carrots'),
+	(3616, 'Celery'),
+	(3616, 'Onion'),
+	(3616, 'Beans'),
+	(3616, 'Pasta'),
+	(3616, 'Spinach'),
+	(3410, 'Pizza Dough'),
+	(3410, 'Tomato Sauce'),
+	(3410, 'Mozzarella Cheese'),
+	(3410, 'Basil'),
+	(3548, 'Baguette'),
+	(3548, 'Tomato'),
+	(3548, 'Garlic'),
+	(3548, 'Basil'),
+	(3548, 'Olive Oil'),
+	(3548, 'Balsamic Vinegar'),
+	(3164, 'Penne Pasta'),
+	(3164, 'Spicy Tomato Sauce'),
+	(3164, 'Garlic'),
+	(3164, 'Olive Oil'),
+	(3325, 'Romaine Lettuce'),
+	(3325, 'Croutons'),
+	(3325, 'Parmesan Cheese'),
+	(3325, 'Caesar Dressing'),
+	(3735, 'Pastry Shells'),
+	(3735, 'Ricotta Cheese'),
+	(3735, 'Powdered Sugar'),
+	(3735, 'Chocolate Chips'),
+	(3473, 'Arborio Rice'),
+	(3473, 'Mushrooms'),
+	(3473, 'Onion'),
+	(3473, 'Garlic'),
+	(3473, 'Vegetable Broth'),
+	(3473, 'Parmesan Cheese'),
+	(3353, 'Flatbread'),
+	(3353, 'Tomato Sauce'),
+	(3353, 'Mozzarella Cheese'),
+	(3353, 'Basil'),
+	(3353, 'Olive Oil'),
+	(3572, 'Spaghetti'),
+	(3572, 'Garlic'),
+	(3572, 'Olive Oil'),
+	(3572, 'Red Pepper Flakes'),
+	(3572, 'Parsley'),
+	(3420, 'Focaccia Bread'),
+	(3420, 'Tomato Sauce'),
+	(3420, 'Mozzarella Cheese'),
+	(3420, 'Basil'),
+	(3605, 'Dough'),
+	(3605, 'Onion'),
+	(3605, 'Garlic'),
+	(3605, 'Ginger'),
+	(3605, 'Spices'),
+	(3605, 'Ground Meat (Chicken/Pork/Vegetable)'),
+	(3317, 'Rice'),
+	(3317, 'Lentil Soup (Dal)'),
+	(3317, 'Curry (Chicken/Pork/Vegetable)'),
+	(3317, 'Pickles'),
+	(3317, 'Salad'),
+	(3726, 'Spices'),
+	(3726, 'Fermented Leafy Greens'),
+	(3408, 'Rice Flour'),
+	(3408, 'Sugar'),
+	(3408, 'Water'),
+	(3408, 'Cardamom'),
+	(3980, 'Grilled Chicken'),
+	(3980, 'Spices'),
+	(3980, 'Mustard Oil'),
+	(3214, 'Noodles'),
+	(3214, 'Meat (Chicken/Pork)'),
+	(3214, 'Vegetables'),
+	(3214, 'Broth'),
+	(3214, 'Spices'),
+	(3829, 'Rice Flour Dough'),
+	(3829, 'Sweetened Sesame Seeds'),
+	(3853, 'Spices'),
+	(3853, 'Grilled Meat (Chicken/Pork)'),
+	(3430, 'Mixed Bean Soup'),
+	(3430, 'Spices'),
+	(3633, 'Pastry Dough'),
+	(3633, 'Potato'),
+	(3633, 'Peas'),
+	(3633, 'Spices'),
+	(3450, 'Rice'),
+	(3450, 'Milk'),
+	(3450, 'Sugar'),
+	(3450, 'Cardamom'),
+	(3450, 'Nuts'),
+	(3913, 'Dried Meat (Buffalo/Chicken)'),
+	(3913, 'Spices'),
+	(3185, 'Rice Flour Crepe'),
+	(3185, 'Eggs'),
+	(3185, 'Minced Meat (Chicken/Pork)'),
+	(3185, 'Vegetables'),
+	(3618, 'Potato'),
+	(3618, 'Bamboo Shoots'),
+	(3618, 'Spices'),
+	(3748, 'Fermented Leafy Greens Soup'),
+	(3748, 'Spices'),
+	(3925, 'Mung Bean Starch Noodles'),
+	(3925, 'Spices'),
+	(3985, 'Black Lentil Pancake'),
+	(3985, 'Spices'),
+	(3675, 'Grilled Meat (Buffalo/Chicken)'),
+	(3675, 'Spices'),
+	(3362, 'Mashed Potato'),
+	(3362, 'Spices'),
+	(3362, 'Batter'),
+	(3954, 'Cucumber'),
+	(3954, 'Spices'),
+	(3954, 'Mustard Oil'),
+	(3684, 'Rice Noodles'),
+	(3684, 'Tamarind Sauce'),
+	(3684, 'Shrimp (or Tofu)'),
+	(3684, 'Bean Sprouts'),
+	(3684, 'Peanuts'),
+	(3684, 'Egg'),
+	(3905, 'Green Curry Paste'),
+	(3905, 'Coconut Milk'),
+	(3905, 'Chicken (or Tofu)'),
+	(3905, 'Vegetables'),
+	(3905, 'Thai Basil'),
+	(3734, 'Lemongrass'),
+	(3734, 'Galangal'),
+	(3734, 'Kaffir Lime Leaves'),
+	(3734, 'Chili'),
+	(3734, 'Lime'),
+	(3734, 'Shrimp (or Tofu)'),
+	(3734, 'Mushrooms'),
+	(3300, 'Rice Paper'),
+	(3300, 'Shrimp (or Tofu)'),
+	(3300, 'Lettuce'),
+	(3300, 'Vermicelli'),
+	(3300, 'Herbs'),
+	(3162, 'Jasmine Rice'),
+	(3162, 'Pineapple'),
+	(3162, 'Shrimp (or Tofu)'),
+	(3162, 'Cashews'),
+	(3162, 'Curry Powder'),
+	(3870, 'Green Beans'),
+	(3870, 'Chicken (or Tofu)'),
+	(3870, 'Red Curry Paste'),
+	(3870, 'Kaffir Lime Leaves'),
+	(3785, 'Grilled Beef'),
+	(3785, 'Thai Chili Dipping Sauce'),
+	(3345, 'Green Papaya'),
+	(3345, 'Chili'),
+	(3345, 'Lime'),
+	(3345, 'Fish Sauce'),
+	(3345, 'Tomato'),
+	(3345, 'Peanuts'),
+	(3215, 'Black Tea'),
+	(3215, 'Condensed Milk'),
+	(3215, 'Sugar'),
+	(3849, 'Roti'),
+	(3849, 'Banana'),
+	(3849, 'Condensed Milk'),
+	(3231, 'Shredded Beef'),
+	(3231, 'Bell Peppers'),
+	(3231, 'Onions'),
+	(3231, 'Tomatoes'),
+	(3231, 'Garlic'),
+	(3231, 'Cumin'),
+	(3171, 'Chicken'),
+	(3171, 'Rice'),
+	(3171, 'Bell Peppers'),
+	(3171, 'Onions'),
+	(3171, 'Garlic'),
+	(3171, 'Saffron'),
+	(3503, 'Ground Beef'),
+	(3503, 'Onions'),
+	(3503, 'Bell Peppers'),
+	(3503, 'Garlic'),
+	(3503, 'Olives'),
+	(3503, 'Raisins'),
+	(3850, 'Roast Pork'),
+	(3850, 'Ham'),
+	(3850, 'Swiss Cheese'),
+	(3850, 'Pickles'),
+	(3850, 'Mustard'),
+	(3850, 'Cuban Bread'),
+	(3284, 'Roast Pork'),
+	(3284, 'Mojo Sauce'),
+	(3284, 'Onions'),
+	(3840, 'Fried Plantains'),
+	(3840, 'Garlic Sauce'),
+	(3494, 'Shredded Beef'),
+	(3494, 'Lime'),
+	(3494, 'Garlic'),
+	(3494, 'Onions'),
+	(3049, 'Black Beans'),
+	(3049, 'Rice'),
+	(3049, 'Onions'),
+	(3049, 'Garlic'),
+	(3049, 'Bell Peppers'),
+	(3749, 'Boiled Yuca'),
+	(3749, 'Garlic Sauce'),
+	(3495, 'Pastry Dough'),
+	(3495, 'Beef'),
+	(3495, 'Chicken'),
+	(3495, 'Cheese'),
+	(3495, 'Spices'),
+	(3379, 'Black Beans'),
+	(3379, 'Onion'),
+	(3379, 'Garlic'),
+	(3379, 'Bell Peppers'),
+	(3379, 'Cumin'),
+	(3972, 'Pork Chops'),
+	(3972, 'Mojo Sauce'),
+	(3432, 'Corn Dough'),
+	(3432, 'Pork (or Chicken)'),
+	(3432, 'Bell Peppers'),
+	(3432, 'Olives'),
+	(3432, 'Raisins'),
+	(3067, 'Fried Sweet Plantains'),
+	(3839, 'Fried Yuca'),
+	(3254, 'Eggs'),
+	(3254, 'Sugar'),
+	(3254, 'Condensed Milk'),
+	(3721, 'Pastry Dough'),
+	(3721, 'Ground Beef'),
+	(3721, 'Olives'),
+	(3721, 'Raisins'),
+	(3721, 'Spices'),
+	(3282, 'Grilled Chicken'),
+	(3282, 'Mojo Sauce'),
+	(3282, 'Onions'),
+	(3315, 'Black Beans'),
+	(3315, 'Onion'),
+	(3315, 'Garlic'),
+	(3315, 'Bell Peppers'),
+	(3315, 'Cilantro'),
+	(3972, 'Espresso')
+
+);
+
+INSERT INTO lrs0306.orders (order_id, order_date, customer_id, restaurant, worker_id) (
+VALUES
+
+        (4879, '2024-03-04 10:23:47', 5012, 'Amalfi Apetito', 5892),
+        (4583, '2024-03-08 15:45:12', 5412, 'Amalfi Apetito', 5895),
+        (4641, '2024-03-12 09:17:36', 5308, 'Amalfi Apetito', 5531),
+        (4518, '2024-03-15 12:58:21', 5426, 'Amalfi Apetito', 5807),
+        (4850, '2024-03-19 17:30:49', 5352, 'Amalfi Apetito', 5693),
+        (4639, '2024-03-22 14:11:05', 5236, 'Pokhara Plates', 5958),
+        (4558, '2024-03-26 08:47:28', 5142, 'Pokhara Plates', 5593),
+        (4878, '2024-03-29 19:09:53', 5279, 'Pokhara Plates', 5532),
+        (4525, '2024-03-03 13:33:17', 5024, 'Pokhara Plates', 5945),
+        (4770, '2024-03-17 10:05:42', 5047, 'Pokhara Plates', 5881),
+        (4660, '2024-03-02 04:27:18', 5207, 'Savory Siam', 5807),
+        (4839, '2024-03-07 20:13:55', 5338, 'Savory Siam', 5593),
+        (4590, '2024-03-11 11:49:42', 5165, 'Savory Siam', 5990),
+        (4983, '2024-03-14 03:08:27', 5278, 'Savory Siam', 5671),
+        (4667, '2024-03-18 17:55:36', 5281, 'Savory Siam', 5606),
+        (4658, '2024-03-21 10:34:19', 5259, 'Carribean Cabana', 5575),
+        (4837, '2024-03-25 18:41:08', 5193, 'Carribean Cabana', 5882),
+        (4755, '2024-03-28 02:22:53', 5214, 'Carribean Cabana', 5750),
+        (4650, '2024-03-31 09:57:14', 5351, 'Carribean Cabana', 5908),
+        (4599, '2024-03-05 19:14:33', 5396, 'Carribean Cabana', 5816)
+
+);
+
+INSERT INTO lrs0306.order_items (order_id, dish_id, quantity) (
+VALUES
+
+	(4518, 3087, 1),
+	(4518, 3134, 1),
+	(4518, 3197, 2),
+	(4518, 3410, 1),
+	(4518, 3548, 1),
+	(4525, 3430, 1),
+	(4525, 3618, 1),
+	(4525, 3633, 2),
+	(4525, 3829, 1),
+	(4525, 3980, 1),
+	(4558, 3214, 1),
+	(4558, 3450, 1),
+	(4558, 3618, 2),
+	(4558, 3726, 1),
+	(4558, 3980, 1),
+	(4583, 3087, 1),
+	(4583, 3134, 1),
+	(4583, 3434, 1),
+	(4583, 3551, 1),
+	(4583, 3797, 1),
+	(4583, 3962, 1),
+	(4590, 3080, 2),
+	(4590, 3162, 1),
+	(4590, 3711, 1),
+	(4590, 3998, 2),
+	(4599, 3080, 1),
+	(4599, 3386, 2),
+	(4599, 3711, 1),
+	(4599, 3962, 2),
+	(4639, 3214, 1),
+	(4639, 3430, 1),
+	(4639, 3450, 1),
+	(4639, 3618, 1),
+	(4639, 3726, 1),
+	(4639, 3913, 1),
+	(4641, 3087, 1),
+	(4641, 3164, 1),
+	(4641, 3325, 1),
+	(4641, 3868, 1),
+	(4641, 3962, 2),
+	(4650, 3097, 1),
+	(4650, 3162, 1),
+	(4650, 3522, 1),
+	(4650, 3581, 2),
+	(4650, 3962, 1),
+	(4658, 3300, 1),
+	(4658, 3522, 1),
+	(4658, 3581, 1),
+	(4658, 3711, 2),
+	(4658, 3734, 1),
+	(4660, 3097, 1),
+	(4660, 3162, 1),
+	(4660, 3522, 1),
+	(4660, 3919, 3),
+	(4667, 3711, 1),
+	(4667, 3734, 1),
+	(4667, 3919, 1),
+	(4667, 3963, 2),
+	(4667, 3998, 1),
+	(4755, 3080, 1),
+	(4755, 3162, 2),
+	(4755, 3300, 1),
+	(4755, 3386, 1),
+	(4755, 3998, 1),
+	(4770, 3214, 1),
+	(4770, 3408, 1),
+	(4770, 3633, 2),
+	(4770, 3913, 2),
+	(4837, 3097, 1),
+	(4837, 3386, 1),
+	(4837, 3581, 1),
+	(4837, 3711, 2),
+	(4837, 3734, 1),
+	(4839, 3581, 2),
+	(4839, 3711, 1),
+	(4839, 3734, 1),
+	(4839, 3905, 1),
+	(4839, 3963, 1),
+	(4850, 3087, 1),
+	(4850, 3134, 1),
+	(4850, 3197, 1),
+	(4850, 3325, 1),
+	(4850, 3410, 1),
+	(4850, 3548, 1),
+	(4878, 3185, 1),
+	(4878, 3214, 1),
+	(4878, 3408, 1),
+	(4878, 3450, 1),
+	(4878, 3829, 1),
+	(4878, 3913, 1),
+	(4879, 3134, 2),
+	(4879, 3197, 1),
+	(4879, 3551, 1),
+	(4879, 3797, 1),
+	(4879, 3962, 1),
+	(4983, 3080, 2),
+	(4983, 3711, 1),
+	(4983, 3963, 1),
+	(4983, 3998, 2)
+
+);
+
+INSERT INTO lrs0306.customers (customer_id, last_name, first_name, address, zip, email, phone) (
+VALUES
+
+    (5012, 'Smith', 'Olivia', '3154 N. Kedzie Ave.', 60618, 'smith.olivia@example.com', 3125550101),
+    (5412, 'Johnson', 'Ethan', '2845 W. Belmont Ave.', 60618, 'johnson.ethan@example.com', 3125550202),
+    (5308, 'Brown', 'Isabella', '3558 N. Albany Ave.', 60618, 'brown.isabella@example.com', 3125550303),
+    (5426, 'Williams', 'Liam', '2936 W. Diversey Ave.', 60647, 'williams.liam@example.com', 3125550404),
+    (5352, 'Jones', 'Ava', '3041 N. California Ave.', 60618, 'jones.ava@example.com', 3125550505),
+    (5236, 'Garcia', 'Noah', '5229 S. Drexel Blvd.', 60615, 'garcia.noah@example.com', 3125550606),
+    (5142, 'Davis', 'Sophia', '1525 E. 53rd St.', 60615, 'davis.sophia@example.com', 3125550707),
+    (5279, 'Rodriguez', 'Mason', '5250 S. Greenwood Ave.', 60615, 'rodriguez.mason@example.com', 3125550808),
+    (5024, 'Martinez', 'Mia', '1406 E. 55th St.', 60615, 'martinez.mia@example.com', 3125550909),
+    (5047, 'Hernandez', 'James', '5114 S. Kenwood Ave.', 60615, 'hernandez.james@example.com', 3125551010),
+    (5207, 'Lopez', 'Charlotte', '1155 W. Taylor St.', 60607, 'lopez.charlotte@example.com', 3125551111),
+    (5338, 'Gonzalez', 'Elijah', '1301 W. Fillmore St.', 60607, 'gonzalez.elijah@example.com', 3125551212),
+    (5165, 'Wilson', 'Harper', '1033 W. Van Buren St.', 60607, 'wilson.harper@example.com', 3125551313),
+    (5278, 'Anderson', 'Benjamin', '1400 S. Halsted St.', 60607, 'anderson.benjamin@example.com', 3125551414),
+    (5281, 'Thomas', 'Amelia', '1500 W. Polk St.', 60607, 'thomas.amelia@example.com', 3125551515),
+    (5259, 'Taylor', 'Oliver', '2219 S. Wentworth Ave.', 60616, 'taylor.oliver@example.com', 3125551616),
+    (5193, 'Moore', 'Evelyn', '230 W. 23rd Pl.', 60616, 'moore.evelyn@example.com', 3125551717),
+    (5214, 'Jackson', 'Jacob', '237 W. 22nd Pl.', 60616, 'jackson.jacob@example.com', 3125551818),
+    (5351, 'White', 'Abigail', '2234 S. Archer Ave.', 60616, 'white.abigail@example.com', 3125551919),
+    (5396, 'Harris', 'William', '2618 S. Princeton Ave.', 60616, 'harris.william@example.com', 3125552020)
+
+);
+
+INSERT INTO lrs0306.delivery (worker_id, last_name, first_name, email, phone) (
+VALUES
+
+    (5606, 'Nowak', 'Aleksandra', 'nowak.aleksandra@example.pl', 3125478932),
+    (5945, 'Antonius', 'Marcus', 'marcus.antonius@example.com', 7734567890),
+    (5990, 'Rossi', 'Giovanni', 'giovanni.rossi@example.it', 3124829012),
+    (5594, 'Kowalski', 'Joanna', 'joanna.kowalski@example.pl', 7736654321),
+    (5882, 'Aurelius', 'Lucius', 'lucius.aurelius@example.com', 3126543210),
+    (5531, 'Russo', 'Sofia', 'sofia.russo@example.it', 7737183045),
+    (5908, 'Wiśniewski', 'Michał', 'michal.wisniewski@example.pl', 3127123456),
+    (5807, 'Octavius', 'Julius', 'julius.octavius@example.com', 7739384756),
+    (5575, 'Esposito', 'Alessandro', 'alessandro.esposito@example.it', 3128472615),
+    (5892, 'Dąbrowski', 'Magdalena', 'magdalena.dabrowski@example.pl', 7736543210),
+    (5593, 'Maximus', 'Gaius', 'gaius.maximus@example.com', 3128765432),
+    (5532, 'Bianchi', 'Matteo', 'matteo.bianchi@example.it', 7738572619),
+    (5816, 'Lewandowski', 'Agnieszka', 'agnieszka.lewandowski@example.pl', 3126789345),
+    (5895, 'Flavius', 'Titus', 'titus.flavius@example.com', 7730978564),
+    (5693, 'Romano', 'Giulia', 'giulia.romano@example.it', 3128374615),
+    (5896, 'Kowalczyk', 'Marcin', 'marcin.kowalczyk@example.pl', 7736543211),
+    (5671, 'Aurelius', 'Octavia', 'octavia.aurelius@example.com', 3129384756),
+    (5881, 'Ferrari', 'Lorenzo', 'lorenzo.ferrari@example.it', 7738472615),
+    (5750, 'Jabłoński', 'Ewa', 'ewa.jablonski@example.pl', 3126789346),
+    (5958, 'Valerius', 'Quintus', 'quintus.valerius@example.com', 7730978565)
+
+);
+
+
+-- Adding column for delivery time
+
+ALTER TABLE IF EXISTS lrs0306.orders 
+    ADD COLUMN del_time timestamptz;
+   
+
+-- Each time a driver marks an order as complete, the timestamp is added to the table. NB: Not all orders have a logged delivery
+
+UPDATE lrs0306.orders SET del_time =
+        	('2024-03-04 10:23:47') WHERE order_id = 4879;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-12 09:17:36') WHERE order_id = 4641;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-15 12:58:21') WHERE order_id = 4518;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-19 18:45:49') WHERE order_id = 4850;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-22 12:11:05') WHERE order_id = 4639;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-29 20:21:53') WHERE order_id = 4878;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-17 09:37:42') WHERE order_id = 4770;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-07 21:21:55') WHERE order_id = 4839;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-11 10:15:42') WHERE order_id = 4590;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-18 19:07:36') WHERE order_id = 4667;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-25 17:41:08') WHERE order_id = 4837;
+UPDATE lrs0306.orders SET del_time =
+		('2024-03-31 09:57:14') WHERE order_id = 4650;
+
+
+
