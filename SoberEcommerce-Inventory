@@ -1,1 +1,13 @@
-SoberEcommerce-Revenue
+CREATE VIEW p4.vw_inventory AS (
+    WITH
+	    purchased AS (SELECT id_bev, SUM(qty) AS qty FROM p4.purchases GROUP BY id_bev),
+	    sold AS (SELECT id_bev, SUM(Y.qty) AS qty FROM p4.orders_items X INNER JOIN p4.packages Y ON X.id_product = Y.id_product GROUP BY id_bev)
+    SELECT P.id_bev, P.qty - COALESCE(S.qty,0) AS qty
+    FROM purchased P LEFT JOIN sold S ON P.id_bev = S.id_bev
+);
+
+WITH X AS (
+    SELECT P.id_product, CASE WHEN I.qty >= P.qty THEN TRUE ELSE FALSE END AS available
+    FROM p4.packages P INNER JOIN p4.vw_inventory I ON P.id_bev = I.id_bev
+)
+SELECT id_product, bool_and(available) AS available FROM X GROUP BY id_product;
